@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - oraclejdk8
+  - oraclejdk7
 install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings ./settings.xml
 before_script:
   - if [[ "$TRAVIS_BRANCH" == *"develop"* ]]; then cp -f ./src/main/app/mule-app-dev.properties ./src/main/app/mule-app.properties; fi
