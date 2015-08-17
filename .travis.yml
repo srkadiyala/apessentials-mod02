@@ -1,14 +1,14 @@
 language: java
 jdk:
   - oraclejdk7
-install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings ./settings.xml
+install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings .settings.xml
 before_script:
-  - if [[ "$TRAVIS_BRANCH" == *"develop"* ]]; then cp -f ./src/main/app/mule-app-dev.properties ./src/main/app/mule-app.properties; fi
+  - if [[ "$TRAVIS_BRANCH" == *"master"* ]]; then cp -f ./src/main/app/mule-app-dev.properties ./src/main/app/mule-app.properties; fi
   - if [[ "$TRAVIS_BRANCH" == *"sprint"* ]]; then cp -f ./src/main/app/mule-app-sit.properties ./src/main/app/mule-app.properties; fi
   - rm -f ./src/main/app/mule-app-*.properties
-script: mvn clean package --settings ./settings.xml
+script: mvn clean package --settings .settings.xml
 
 after_success:
-  - echo "Travis Branch - $TRAVIS_BRANCH"
-  - if [[ "$TRAVIS_BRANCH" == *"develop"* ]]; then mvn --settings ./settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dcloudhub.username=$cloudhub_username -Dcloudhub.password=$cloudhub_password -Dcloudhub.domain=dev-$cloudhub_domain -Dcloudhub.maxWaitTime=$cloudhub_maxWaitTime -Dcloudhub.workers=$cloudhub_workers package mule-appkit:cloudhub-deploy; fi
-  - if [[ "$TRAVIS_BRANCH" == *"sprint"* ]]; then mvn --settings ./settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dcloudhub.username=SIT_$cloudhub_username -Dcloudhub.password=$cloudhub_password -Dcloudhub.domain=sit-$cloudhub_domain -Dcloudhub.maxWaitTime=$cloudhub_maxWaitTime -Dcloudhub.workers=$cloudhub_workers package mule-appkit:cloudhub-deploy; fi
+  - echo "TRAVIS Branch - $TRAVIS_BRANCH"
+  - if [[ "$TRAVIS_BRANCH" == *"master"* ]]; then mvn --settings .settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dcloudhub.username=$cloudhub_username -Dcloudhub.password=$cloudhub_password -Dcloudhub.domain=dev-$cloudhub_domain -Dcloudhub.maxWaitTime=$cloudhub_maxWaitTime -Dcloudhub.workers=$cloudhub_workers package mule-appkit:cloudhub-deploy; fi
+  - if [[ "$TRAVIS_BRANCH" == *"sprint"* ]]; then mvn --settings .settings.xml -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dcloudhub.username=SIT_$cloudhub_username -Dcloudhub.password=$cloudhub_password -Dcloudhub.domain=sit-$cloudhub_domain -Dcloudhub.maxWaitTime=$cloudhub_maxWaitTime -Dcloudhub.workers=$cloudhub_workers package mule-appkit:cloudhub-deploy; fi
