@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.mycompany</groupId>
+	<artifactId>com.mytest</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>mule</packaging>
+	<name>Mule com.mytest Application</name>
+
+    <properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<mule.version>3.7.0</mule.version>
+		<!-- <mule.version>3.6.1</mule.version> -->
+    	<mule.tools.version>1.0</mule.tools.version>
+    	<mule.munit.version>3.7.0-RC1</mule.munit.version>
+    	<cloudhub.muleVersion>${mule.version}</cloudhub.muleVersion>
+    	<!-- <mule.munit.version>3.6.0-BETA</mule.munit.version> -->
+    	<!-- <cloudhub.domain>bvb-test</cloudhub.domain>-->
+	</properties>
+
+	<build>
+		<plugins>
+			<!-- <plugin>
+			    <groupId>org.codehaus.mojo</groupId>
+			    <artifactId>properties-maven-plugin</artifactId>
+			    <version>1.0-alpha-2</version>
+			    <executions>
+			        <execution>
+			            <phase>initialize</phase>
+			            <goals>
+			                <goal>read-project-properties</goal>
+			            </goals>
+			            <configuration>
+			                <files>
+			                    <file>${basedir}/pom.properties</file>
+			                </files>
+			            </configuration>
+			        </execution>
+			    </executions>
+			</plugin> -->
+			<plugin>
+				<groupId>org.mule.tools.appkit</groupId>
+				<artifactId>mule-appkit-maven-plugin</artifactId>
+				<version>3.5</version>
+				<extensions>true</extensions>
+				<executions>
+					<execution>
+                        <phase>deploy</phase>
+						<goals>
+							<goal>cloudhub-deploy</goal>
+						</goals>
+						<configuration>
+						<!-- 
+							<username>${env.cloudhub_username}</username>
+		                    <password>${env.cloudhub_password}</password>
+		                    <muleVersion>${mule.version}</muleVersion>
+		                    <workers>${env.cloudhub_workers}</workers>
+							<domain>${env.cloudhub_env_dev}-${cloudhub.domain}</domain>
+							<maxWaitTime>360000</maxWaitTime>
+						 -->
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.mule.tools.maven</groupId>
+				<artifactId>mule-app-maven-plugin</artifactId>
+				<version>${mule.tools.version}</version>
+				<extensions>true</extensions>
+				<configuration>
+                    <copyToAppsDirectory>true</copyToAppsDirectory>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>project</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<id>add-resource</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>add-resource</goal>
+						</goals>
+						<configuration>
+							<resources>
+								<resource>
+									<directory>src/main/app/</directory>
+								</resource>
+								<resource>
+									<directory>mappings/</directory>
+								</resource>
+							<resource>
+                                    <directory>src/main/api/</directory>
+                                </resource>
+                            </resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<!--Install clover-plugins-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>copy-clover-plugins</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <stripVersion>true</stripVersion>
+            
+                            <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>com.cloveretl</groupId>
+                                    <artifactId>cloveretl-engine</artifactId>
+                                    <version>${mule.version}</version>
+                                    <type>zip</type>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <configuration>
+                            <tasks>
+                                <!-- Using an ant task to deflate cloveretl-engine.zip -->
+                                <unzip dest="${project.build.testOutputDirectory}" src="${project.build.testOutputDirectory}/cloveretl-engine.zip"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- <plugin>
+                <groupId>org.mule.tools.maven</groupId>
+                <artifactId>cloudhub-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <muleVersion>3.6.0</muleVersion>
+                    <username>${env.cloudhub_username}</username>
+                    <password>${env.cloudhub_password}</password>
+                    <domain>${env.cloudhub_env_dev}-${cloudhub.domain}3</domain>
+                    <muleVersion>${mule.version}</muleVersion>
+                    <workers>${env.cloudhub_workers}</workers>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>deploy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
+			<plugin>
+                <groupId>org.mule.munit.tools</groupId>
+                <artifactId>munit-maven-plugin</artifactId>
+                <!-- <version>3.6.0-BETA</version> -->
+                <version>${mule.munit.version}</version>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+		<testResources>
+            <testResource>
+                <directory>src/test/munit</directory>
+            </testResource>
+        </testResources>
+    </build>
+
+	<!-- Mule Dependencies -->
+	<dependencies>
+		<!-- Propery plugin -->
+		<!-- 
+		<dependency>
+		    <groupId>org.codehaus.mojo</groupId>
+		    <artifactId>properties-maven-plugin</artifactId>
+		    <version>1.0-alpha-2</version>
+		</dependency>
+		 -->
+		<!-- Xml configuration -->
+		<dependency>
+        	<groupId>com.mulesoft.muleesb</groupId>
+			<artifactId>mule-core-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- 
+		<dependency>
+        	<groupId>org.mule</groupId>
+			<artifactId>mule-core</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		 -->
+		<!-- Xml configuration -->
+		<dependency>
+			<groupId>com.mulesoft.muleesb.modules</groupId>
+			<artifactId>mule-module-spring-config-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Mule Transports -->
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-file</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-http</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+        	<groupId>com.mulesoft.muleesb.transports</groupId>
+			<artifactId>mule-transport-jdbc-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+        	<groupId>com.mulesoft.muleesb.transports</groupId>
+			<artifactId>mule-transport-jms-ee</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.transports</groupId>
+			<artifactId>mule-transport-vm</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Mule Modules -->
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-scripting</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-module-xml</artifactId>
+			<version>${mule.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- for testing -->
+		<dependency>
+			<groupId>org.mule.tests</groupId>
+			<artifactId>mule-tests-functional</artifactId>
+			<version>${mule.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.cloveretl</groupId>
+			<artifactId>cloveretl-engine</artifactId>
+			<version>${mule.version}</version>
+			<scope>test</scope>
+		</dependency>
+	<dependency>
+            <groupId>org.mule.munit</groupId>
+            <artifactId>munit-assert</artifactId>
+            <!-- <version>3.6.0-BETA</version> --> <version>${mule.munit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    <dependency>
+            <groupId>org.mule.munit</groupId>
+            <artifactId>munit-mock</artifactId>
+            <!-- <version>3.6.0-BETA</version> --> <version>${mule.munit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    <dependency>
+            <groupId>org.mule.munit</groupId>
+            <artifactId>munit-common</artifactId>
+            <!-- <version>3.6.0-BETA</version> --> <version>${mule.munit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    <dependency>
+            <groupId>org.mule.munit</groupId>
+            <artifactId>munit-runner</artifactId>
+            <!-- <version>3.6.0-BETA</version> --> <version>${mule.munit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-interceptor-module</artifactId>
+            <!-- <version>3.6.0-BETA</version> -->
+            <version>${mule.munit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-spring-config</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+	<repositories>
+          <repository>
+            <id>Central</id>
+            <name>Central</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>http://repository.mulesoft.org/releases/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>mulesoft-snapshots</id>
+            <name>MuleSoft Snapshots Repository</name>
+            <url>http://repository.mulesoft.org/snapshots/</url>
+            <layout>default</layout>
+        </repository>
+        <repository> 
+	        <id>releases-ee</id> 
+	        <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases-ee/</url> 
+	        <releases> 
+	        	<enabled>true</enabled> 
+	        </releases> 
+	        <snapshots> 
+	        	<enabled>true</enabled> 
+	        </snapshots> 
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mulesoft-release</id>
+            <name>mulesoft release repository</name>
+            <layout>default</layout>
+            <url>http://repository.mulesoft.org/releases/</url>
+        </pluginRepository>
+		  <pluginRepository>
+			<id>mulesoft-snapshots</id>
+			<name>MuleSoft Snapshot Repository</name>
+			<url>http://repository.mulesoft.org/snapshots/</url>
+		  </pluginRepository>
+    </pluginRepositories>
+</project>
