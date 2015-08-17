@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+     <server>  
+       <id>${env.maven_s3_mule_repo_id}</id>
+       <username>${env.maven_s3_mule_repo_username}</username>
+       <password>${env.maven_s3_mule_repo_password}</password>
+       <passphrase>${env.maven_s3_mule_repo_passphrase}</passphrase>
+     </server>
+     <server>  
+       <id>${env.releases_ee_id}</id>
+       <username>${env.releases_ee_username}</username>
+       <password>${env.releases_ee_password}</password>
+     </server>
+     <!-- <server>  
+       <id>${env.cloudhub_id}</id>
+       <username>${env.cloudhub_username}</username>
+       <password>${env.cloudhub_password}</password>
+     </server>-->
+  </servers>
+</settings
