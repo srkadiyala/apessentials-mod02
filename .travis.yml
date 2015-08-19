@@ -1,7 +1,7 @@
 language: java
 jdk:
   - oraclejdk7
-install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings ./settings.xml
+install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings settings.xml
 before_script:
   - if [[ "$TRAVIS_BRANCH" == *"master"* ]]; then cp -f mule-app-dev.properties ./mule-app.properties; fi
   - if [[ "$TRAVIS_BRANCH" == *"sprint"* ]]; then cp -f mule-app-sit.properties ./mule-app.properties; fi
